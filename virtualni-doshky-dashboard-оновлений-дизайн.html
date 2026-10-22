@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F1F0E5">
+<title>Віртуальні дошки</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Raleway:wght@400;500;600;700&family=Marck+Script&display=swap&subset=cyrillic" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#F1F0E5;--olive-dark:#596447;--olive:#87936A;
+  --olive-light:#AAB18B;--olive-pale:#D8DCC7;
+  --text:#353A2B;--text-mid:#555C47;--brown:#70452F;--brown-light:#855536;
+}
+html{min-height:100%;background:var(--cream)}
+body{
+  font-family:'Raleway',sans-serif;min-height:100vh;color:var(--text);
+  background:radial-gradient(ellipse 65% 55% at 8% 18%,rgba(216,203,167,.40),transparent 68%),
+             radial-gradient(ellipse 55% 65% at 92% 82%,rgba(194,199,161,.42),transparent 65%),
+             var(--cream);
+  position:relative;overflow-x:hidden;
+}
+.page{position:relative;z-index:2;max-width:820px;margin:0 auto;padding:30px 18px 42px}
+.header{text-align:center;margin-bottom:18px}
+.brand-icon{width:54px;height:48px;display:block;margin:0 auto 8px}
+.header h1{
+  font-family:'Marck Script',cursive;font-weight:400;
+  font-size:clamp(2.7rem,6.5vw,3.9rem);line-height:1.12;margin-bottom:12px;
+  color:var(--brown);text-shadow:0 1px 0 rgba(255,255,255,.55),0 3px 9px rgba(112,69,47,.16)
+}
+.header-desc{max-width:680px;margin:0 auto 20px;font-size:1.08rem;line-height:1.7;color:var(--text-mid);font-weight:500}
+.section-intro{
+  font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1.6rem;
+  color:var(--brown);margin:0 auto 10px;line-height:1.3
+}
+.divider{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(112,69,47,.35),transparent)}
+.divider-dot{width:7px;height:7px;border-radius:50%;background:#B28B68;box-shadow:0 0 8px rgba(112,69,47,.25)}
+.links-list{display:flex;flex-direction:column;background:rgba(255,255,255,.20);border:1px solid rgba(112,69,47,.13);border-radius:18px;padding:6px 18px;box-shadow:0 12px 35px rgba(84,78,52,.06)}
+.link-card{display:flex;align-items:center;gap:12px;padding:14px 6px;text-decoration:none;color:inherit;border-bottom:1px solid rgba(112,69,47,.18);transition:padding-left .22s ease,background .22s ease}
+.link-card:last-child{border-bottom:none}
+.link-card:hover{padding-left:13px;background:rgba(255,255,255,.28)}
+.link-body{flex:1;min-width:0}
+.link-name{font-family:'Marck Script',cursive;font-size:clamp(1.55rem,3.8vw,1.95rem);line-height:1.25;color:var(--brown);display:block;margin-bottom:4px;transition:color .2s}
+.link-card:hover .link-name{color:#946344}
+.link-tag{font-size:.95rem;font-weight:500;line-height:1.5;color:var(--text-mid);display:block}
+.link-arrow{font-size:1.35rem;color:var(--olive);flex-shrink:0;transition:transform .2s,color .2s}
+.link-card:hover .link-arrow{transform:translateX(4px);color:var(--brown-light)}
+/* Декоративна CSS-анімація: напівпрозорі фігури рухаються вздовж боків */
+.floating-shapes{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.shape{position:absolute;bottom:-130px;opacity:0;will-change:transform,opacity;animation:float-up var(--duration,19s) linear var(--delay,0s) infinite}
+.shape.circle{width:var(--size,58px);height:var(--size,58px);border:2px solid rgba(133,85,54,.48);border-radius:50%;background:rgba(216,203,167,.13);box-shadow:0 0 22px rgba(170,145,105,.28),inset 0 0 12px rgba(255,255,255,.22)}
+.shape.triangle{width:0;height:0;border-left:calc(var(--size,60px) * .58) solid transparent;border-right:calc(var(--size,60px) * .58) solid transparent;border-bottom:var(--size,60px) solid rgba(135,147,106,.25);filter:drop-shadow(0 0 12px rgba(135,147,106,.34))}
+.shape.trapezoid{width:calc(var(--size,74px) * 1.25);height:var(--size,74px);background:rgba(177,139,104,.17);border:2px solid rgba(133,85,54,.42);clip-path:polygon(25% 0,75% 0,100% 100%,0 100%);filter:drop-shadow(0 0 12px rgba(133,85,54,.28))}
+.shape.formula{font-family:Georgia,serif;font-size:clamp(1.15rem,2.2vw,1.8rem);font-weight:600;letter-spacing:.02em;white-space:nowrap;color:rgba(112,69,47,.62);text-shadow:0 0 12px rgba(177,139,104,.32);animation-name:float-up-formula}
+.shape.triangle::after{content:'';position:absolute;left:calc(var(--size,30px) * -.43);top:calc(var(--size,30px) * .18);width:0;height:0;border-left:calc(var(--size,30px) * .43) solid transparent;border-right:calc(var(--size,30px) * .43) solid transparent;border-bottom:calc(var(--size,30px) * .74) solid var(--cream);opacity:.32}
+@keyframes float-up{
+  0%{transform:translate3d(0,0,0) rotate(0deg);opacity:0}
+  10%{opacity:.62}
+  50%{transform:translate3d(var(--drift,18px),-55vh,0) rotate(150deg);opacity:.5}
+  90%{opacity:.45}
+  100%{transform:translate3d(calc(var(--drift,18px) * -1),-115vh,0) rotate(300deg);opacity:0}
+}
+@keyframes float-up-formula{
+  0%{transform:translate3d(0,0,0) rotate(-5deg);opacity:0}
+  12%{opacity:.62}
+  50%{transform:translate3d(var(--drift,14px),-55vh,0) rotate(4deg);opacity:.52}
+  88%{opacity:.42}
+  100%{transform:translate3d(calc(var(--drift,14px) * -1),-115vh,0) rotate(-4deg);opacity:0}
+}
+@media(max-width:560px){
+ .page{padding:22px 12px 34px}.header-desc{font-size:1rem;line-height:1.65}
+ .links-list{padding:4px 12px}.link-card{padding:13px 3px}.link-tag{font-size:.88rem}
+ .shape{filter:opacity(.7)}.shape.circle{width:calc(var(--size,58px) * .8);height:calc(var(--size,58px) * .8)}.shape.triangle{border-left-width:calc(var(--size,60px) * .46);border-right-width:calc(var(--size,60px) * .46)}.shape:nth-child(odd){display:none}
+}
+@media(prefers-reduced-motion:reduce){.shape{animation:none;display:none}.link-card,.link-arrow,.link-name{transition:none}}
+</style>
+</head>
+<body>
+<div class="floating-shapes" aria-hidden="true">
+  <span class="shape circle" style="left:2%;--size:66px;--duration:25s;--delay:-4s;--drift:18px"></span>
+  <span class="shape triangle" style="left:8%;--size:76px;--duration:28s;--delay:-13s;--drift:-20px"></span>
+  <span class="shape trapezoid" style="left:14%;--size:70px;--duration:30s;--delay:-18s;--drift:24px"></span>
+  <span class="shape formula" style="left:2%;--duration:31s;--delay:-16s;--drift:15px">x + 3 &gt; 7</span>
+  <span class="shape circle" style="left:17%;--size:44px;--duration:23s;--delay:-8s;--drift:12px"></span>
+  <span class="shape triangle" style="left:3%;--size:52px;--duration:22s;--delay:-2s;--drift:16px"></span>
+  <span class="shape circle" style="left:87%;--size:70px;--duration:27s;--delay:-11s;--drift:-20px"></span>
+  <span class="shape trapezoid" style="left:81%;--size:78px;--duration:32s;--delay:-5s;--drift:22px"></span>
+  <span class="shape triangle" style="left:91%;--size:82px;--duration:29s;--delay:-2s;--drift:20px"></span>
+  <span class="shape formula" style="left:83%;--duration:28s;--delay:-19s;--drift:-15px">a² + b² = c²</span>
+  <span class="shape circle" style="left:95%;--size:48px;--duration:24s;--delay:-15s;--drift:-12px"></span>
+  <span class="shape triangle" style="left:79%;--size:54px;--duration:26s;--delay:-6s;--drift:16px"></span>
+  <span class="shape formula" style="left:1%;--duration:34s;--delay:-27s;--drift:13px">S = (a + b)h / 2</span>
+  <span class="shape formula" style="left:82%;--duration:33s;--delay:-8s;--drift:-12px">y = 2x − 1</span>
+</div>
+<main class="page">
+  <header class="header">
+    <svg class="brand-icon" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="17" y="13" width="86" height="62" rx="7" fill="#DDE1CA" stroke="#78845D" stroke-width="3"/>
+      <path d="M28 29H91M28 41H78M28 53H64" stroke="#87936A" stroke-width="4" stroke-linecap="round"/>
+      <path d="M48 76V86M72 76V86M39 87H81" stroke="#596447" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="88" cy="55" r="7" fill="#C6A66A"/>
+    </svg>
+    <h1>Віртуальні дошки</h1>
+    <p class="header-desc">Онлайн-дошка — це сучасний цифровий «білий аркуш» для спільного навчання у реальному часі, який перетворює дистанційний урок на живий інтерактивний процес. Вона незамінна для вчителів математики та фізики: тут зручно разом розв’язувати задачі, будувати графіки, креслити схеми, аналізувати формули та проводити віртуальні досліди. Завдяки наочній візуалізації та можливості працювати пліч-о-пліч із учнями, дошка допомагає м’яко надолужувати освітні втрати та підтримувати кожного школяра. Усі матеріали уроку зберігаються в один клік, даючи змогу дітям у будь-який момент повернутися до пройденого матеріалу та впевнено засвоїти складні теми.</p>
+  </header>
+  <nav class="links-list" aria-label="Посилання на онлайн-дошки">
+    <a class="link-card" href="https://draw.chat/uk/index.html" target="_blank" rel="noopener noreferrer">
+      <span class="link-body"><span class="link-name">Онлайн дошка для навчання та платформа для спілкування</span></span><span class="link-arrow" aria-hidden="true">→</span>
+    </a>
+    <a class="link-card" href="https://www.tldraw.com/f/W1AIDHJFa1bAgjE94EJWy?d=v0.0.1180.778.page" target="_blank" rel="noopener noreferrer">
+      <span class="link-body"><span class="link-name">Tldraw</span><span class="link-tag">Призначена для малювання, створення швидких скіців, схем, діаграм та спільного мозкового штурму в реальному часі.</span></span><span class="link-arrow" aria-hidden="true">→</span>
+    </a>
+    <a class="link-card" href="https://www.geogebra.org/notes?lang=uk" target="_blank" rel="noopener noreferrer">
+      <span class="link-body"><span class="link-name">GeoGebra Notes</span><span class="link-tag">Потужна інтерактивна онлайн-дошка, створена спеціально для викладання математики, фізики та природничих наук.</span></span><span class="link-arrow" aria-hidden="true">→</span>
+    </a>
+  </nav>
+  <section class="author-boards" aria-label="Авторські дошки">
+    <p class="section-intro">Авторські дошки</p>
+    <div class="divider"><span class="divider-dot"></span></div>
+    <nav class="links-list" aria-label="Авторські дошки">
+    <a class="link-card" href="https://www.tldraw.com/f/opvGBWkOawNi88Acbg65B?d=v-2529.300.5760.3112.page" target="_blank" rel="noopener noreferrer">
+      <span class="link-body"><span class="link-name">9м — Лінійні нерівності з однією змінною</span></span><span class="link-arrow" aria-hidden="true">→</span>
+    </a>
+    <a class="link-card" href="https://www.tldraw.com/f/_Q4h7mLlVUj42ugMFON4b?d=v-1541.-1457.5116.2760.page" target="_blank" rel="noopener noreferrer">
+      <span class="link-body"><span class="link-name">8ф — Розв’язування задач «Теплота згоряння палива. Коефіцієнт корисної дії нагрівника»</span></span><span class="link-arrow" aria-hidden="true">→</span>
+    </a>
+    </nav>
+  </section>
+</main>
+</body>
+</html>
